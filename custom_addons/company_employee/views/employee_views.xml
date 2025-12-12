@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_company_employee_tree" model="ir.ui.view">
+        <field name="name">company.employee.tree</field>
+        <field name="model">company.employee</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="position"/>
+                <field name="is_active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_company_employee_form" model="ir.ui.view">
+        <field name="name">company.employee.form</field>
+        <field name="model">company.employee</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="name"/>
+                    <field name="position"/>
+                    <field name="is_active"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_company_employee" model="ir.actions.act_window">
+        <field name="name">Employees</field>
+        <field name="res_model">company.employee</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Menu -->
+    <menuitem id="menu_company_root" name="Company"/>
+    <menuitem id="menu_company_employee"
+              name="Employees"
+              parent="menu_company_root"
+              action="action_company_employee"/>
+</odoo>
