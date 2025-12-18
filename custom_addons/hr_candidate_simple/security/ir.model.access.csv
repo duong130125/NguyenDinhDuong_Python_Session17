@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hr_candidate_recruiter,hr_candidate_simple.Recruiter Access,model_hr_candidate,hr_candidate_simple.group_hr_recruiter,1,1,1,0
+access_hr_candidate_manager,hr_candidate_simple.Manager Access,model_hr_candidate,hr_candidate_simple.group_hr_manager,1,1,1,1
+access_hr_candidate_customer,hr_candidate_simple.Customer Access,model_hr_candidate,hr_candidate_simple.group_hr_customer,1,0,0,0

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Tree View -->
+    <record id="view_hr_candidate_tree" model="ir.ui.view">
+        <field name="name">hr.candidate.tree</field>
+        <field name="model">hr.candidate</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="gender"/>
+                <field name="birthday"/>
+                <field name="expected_salary"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_hr_candidate_form" model="ir.ui.view">
+        <field name="name">hr.candidate.form</field>
+        <field name="model">hr.candidate</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="gender"/>
+                        <field name="birthday"/>
+                        <field name="expected_salary"/>
+                        <field name="manager_note"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_hr_candidate" model="ir.actions.act_window">
+        <field name="name">Danh sách ứng viên</field>
+        <field name="res_model">hr.candidate</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Menu -->
+    <menuitem
+        id="menu_hr_candidate"
+        name="Danh sách ứng viên"
+        action="action_hr_candidate"
+        sequence="10"/>
+
+</odoo>

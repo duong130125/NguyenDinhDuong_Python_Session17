@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="group_estate_sale" model="res.groups">
+            <field name="name">Sale</field>
+        </record>
+
+        <record id="group_estate_marketing" model="res.groups">
+            <field name="name">Marketing</field>
+        </record>
+    </data>
+</odoo>

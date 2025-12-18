@@ -1,0 +1,54 @@
+<odoo>
+
+    <!-- Tree -->
+    <record id="view_it_ticket_tree" model="ir.ui.view">
+        <field name="name">it.ticket.tree</field>
+        <field name="model">it.ticket</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="priority"/>
+                <field name="category"/>
+                <field name="date_created"/>
+                <field name="is_solved"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form -->
+    <record id="view_it_ticket_form" model="ir.ui.view">
+        <field name="name">it.ticket.form</field>
+        <field name="model">it.ticket</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="user_name"/>
+                        <field name="email"/>
+                        <field name="priority"/>
+                        <field name="category"/>
+                        <field name="description"/>
+                        <field name="tech_note"/>
+                        <field name="repair_cost"/>
+                        <field name="is_solved"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_it_ticket" model="ir.actions.act_window">
+        <field name="name">Quản lý tickets</field>
+        <field name="res_model">it.ticket</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Menu cấp 1 -->
+    <menuitem
+        id="menu_it_ticket"
+        name="Quản lý tickets"
+        action="action_it_ticket"
+        sequence="10"/>
+</odoo>
