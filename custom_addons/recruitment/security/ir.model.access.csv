@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+recruiter_rights,Recruiter,model_hr_candidate,group_hr_recruiter,1,1,1,0
+manager_rights,Manager,model_hr_candidate,group_hr_manager,1,1,1,1
+manager_rights_jp,Manager,model_hr_job_position,group_hr_manager,1,1,1,1
+manager_rights_offer,Manager,model_hr_candidate_offer,group_hr_manager,1,1,1,1
+manager_rights_tag,Manager,model_hr_candidate_tag,group_hr_manager,1,1,1,1
+customer,Customer,model_hr_candidate,group_hr_customer,1,0,0,0

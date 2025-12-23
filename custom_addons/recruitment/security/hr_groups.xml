@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="group_hr_recruiter" model="res.groups">
+            <field name="name">Recruiter</field>
+        </record>
+
+        <record id="group_hr_manager" model="res.groups">
+            <field name="name">Manager</field>
+        </record>
+
+        <record id="group_hr_customer" model="res.groups">
+            <field name="name">Customer</field>
+        </record>
+    </data>
+</odoo>
