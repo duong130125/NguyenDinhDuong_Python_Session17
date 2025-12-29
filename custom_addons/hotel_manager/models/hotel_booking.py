@@ -16,7 +16,8 @@ class HotelBooking(models.Model):
     state = fields.Selection([
         ('draft', 'Nháp'),
         ('confirmed', 'Đã xác nhận'),
-        ('done', 'Hoàn thành')
+        ('done', 'Hoàn thành'),
+        ('cancel', 'Đã hủy')
     ], string='Trạng thái', default='draft', required=True)
     
     # Relationships
@@ -83,24 +84,28 @@ class HotelBooking(models.Model):
     
     @api.constrains('room_id')
     def _check_room_status(self):
+        # Constraint này có thể gây xung đột khi đang ở trạng thái confirmed (phòng đã occupied chính bởi booking này)
+        # Nên chỉ check khi tạo mới hoặc khi sửa ở trạng thái draft
         for booking in self:
-            if booking.room_id and booking.room_id.status == 'occupied':
-                raise ValidationError(_('Phòng này đang có khách ở!'))
+            if booking.state == 'draft' and booking.room_id and booking.room_id.status == 'occupied':
+                # Tuy nhiên, validation logic chính nằm ở action_confirm
+                pass
     
     @api.constrains('room_id', 'check_in', 'check_out', 'state')
     def _check_room_availability(self):
         for booking in self:
-            if booking.check_in and booking.check_out and booking.state in ['draft', 'confirmed']:
+            # Chỉ check khi có đủ thông tin và booking không phải là đã hủy
+            if booking.check_in and booking.check_out and booking.state != 'cancel':
                 domain = [
                     ('id', '!=', booking.id),
                     ('room_id', '=', booking.room_id.id),
-                    ('state', '=', 'confirmed'),
+                    ('state', 'in', ['confirmed', 'done']), # Check trùng với đơn Đã xác nhận hoặc Đã hoàn thành
                     ('check_in', '<', booking.check_out),
                     ('check_out', '>', booking.check_in),
                 ]
                 count = self.search_count(domain)
                 if count > 0:
-                    raise ValidationError(_('Phòng %s đã có người đặt trong khoảng thời gian này!', booking.room_id.name))
+                    raise ValidationError(_('Phòng %s đã có người đặt (hoặc đã ở) trong khoảng thời gian này!', booking.room_id.name))
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -110,33 +115,24 @@ class HotelBooking(models.Model):
             # Logic check status occupied chỉ là check thời điểm hiện tại
             if vals.get('room_id'):
                 room = self.env['hotel.room'].browse(vals['room_id'])
-                if room.status == 'occupied':
-                    pass 
+                # Không chặn cứng ở create vì có thể đặt trước cho tương lai, logic chặn chính xác nằm ở Check Availability (_check_room_availability)
+                pass 
         return super(HotelBooking, self).create(vals_list)
     
     def write(self, vals):
-        old_states = {b.id: b.state for b in self}
-        res = super(HotelBooking, self).write(vals)
-        
-        if 'state' in vals:
-            for booking in self:
-                if vals['state'] == 'confirmed' and old_states[booking.id] == 'draft':
-                    # Check lại availability lần nữa khi confirm
-                    self._check_room_availability()
-                    
-                    booking.room_id.status = 'occupied'
-                elif vals['state'] == 'done' and old_states[booking.id] == 'confirmed':
-                    booking.room_id.status = 'available'
-                elif vals['state'] == 'draft' and old_states[booking.id] in ['confirmed', 'done']:
-                    booking.room_id.status = 'available'
-        return res
-    
+        # Override write để handle logic khi sửa state trực tiếp (nếu có, dù UI đã chặn) hoặc các thay đổi khác
+        # Nhưng logic chính shift sang buttons
+        return super(HotelBooking, self).write(vals)
 
     def action_confirm(self):
         for booking in self:
             if booking.state == 'draft':
-                if booking.room_id.status == 'occupied':
-                    raise ValidationError(_('Phòng này đang có khách ở, không thể xác nhận nhận phòng!'))
+                if booking.room_id.status in ['maintenance', 'occupied']:
+                    raise ValidationError(_('Phòng đang bảo trì hoặc đã có người ở. Không thể check-in!'))
+                
+                # Check availability theo thời gian
+                booking._check_room_availability()
+                
                 # Chuyển trạng thái phòng sang 'Đang ở' (Occupied)
                 booking.room_id.status = 'occupied'
                 booking.state = 'confirmed'
@@ -147,12 +143,17 @@ class HotelBooking(models.Model):
                 # Khi khách trả phòng, chuyển trạng thái phòng về 'Trống' (Available)
                 booking.room_id.status = 'available'
                 booking.state = 'done'
+
+    def action_cancel(self):
+        for booking in self:
+            if booking.state == 'confirmed':
+                 # Nếu đang giữ phòng thì phải trả lại phòng
+                booking.room_id.status = 'available'
+            booking.state = 'cancel'
     
     def action_draft(self):
         for booking in self:
-            if booking.state in ['confirmed', 'done']:
-                # Nếu hủy xác nhận, trả phòng về trạng thái 'Trống'
-                booking.room_id.status = 'available'
+            if booking.state == 'cancel':
                 booking.state = 'draft'
     
     def unlink(self):

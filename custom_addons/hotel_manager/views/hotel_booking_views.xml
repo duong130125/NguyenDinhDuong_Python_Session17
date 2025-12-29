@@ -4,7 +4,7 @@
         <field name="name">hotel.booking.tree</field>
         <field name="model">hotel.booking</field>
         <field name="arch" type="xml">
-            <tree string="Danh sách Đặt phòng" decoration-info="state == 'draft'" decoration-success="state == 'confirmed'" decoration-muted="state == 'done'">
+            <tree string="Danh sách Đặt phòng" decoration-info="state == 'draft'" decoration-success="state == 'confirmed'" decoration-muted="state == 'done'" decoration-danger="state == 'cancel'">
                 <field name="code"/>
                 <field name="customer_id" options="{'no_create': True, 'no_open': True}"/>
                 <field name="room_id" options="{'no_create': True, 'no_open': True}"/>
@@ -12,8 +12,61 @@
                 <field name="check_out"/>
                 <field name="duration" string="Số đêm"/>
                 <field name="total_amount" sum="Tổng doanh thu" decoration-bf="1"/>
-                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'confirmed'" decoration-muted="state == 'done'"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'confirmed'" decoration-muted="state == 'done'" decoration-danger="state == 'cancel'"/>
             </tree>
+        </field>
+    </record>
+
+    <record id="view_hotel_booking_calendar" model="ir.ui.view">
+        <field name="name">hotel.booking.calendar</field>
+        <field name="model">hotel.booking</field>
+        <field name="arch" type="xml">
+            <calendar string="Lịch đặt phòng" date_start="check_in" date_stop="check_out" color="room_id" mode="month">
+                <field name="customer_id"/>
+                <field name="room_id"/>
+                <field name="state"/>
+            </calendar>
+        </field>
+    </record>
+
+    <record id="view_hotel_booking_kanban" model="ir.ui.view">
+        <field name="name">hotel.booking.kanban</field>
+        <field name="model">hotel.booking</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" quick_create="false" on_create="quick_create">
+                <field name="state"/>
+                <field name="code"/>
+                <field name="customer_id"/>
+                <field name="room_id"/>
+                <field name="total_amount"/>
+                <field name="currency_id"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click">
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title"><field name="room_id"/></strong>
+                                </div>
+                                <div class="float-end">
+                                    <field name="total_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                </div>
+                            </div>
+                            <div class="o_kanban_record_body">
+                                <div><field name="customer_id"/></div>
+                                <div class="text-muted"><field name="code"/></div>
+                            </div>
+                            <div class="o_kanban_record_bottom">
+                                <div class="oe_kanban_bottom_left">
+                                    <field name="check_in"/> - <field name="check_out"/>
+                                </div>
+                                <div class="oe_kanban_bottom_right">
+                                    <field name="state" widget="label_selection" options="{'classes': {'draft': 'info', 'confirmed': 'success', 'done': 'default', 'cancel': 'danger'}}"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
         </field>
     </record>
 
@@ -23,12 +76,15 @@
         <field name="arch" type="xml">
             <form string="Phiếu đặt phòng">
                 <header>
-                    <button name="action_confirm" string="Xác nhận nhận phòng" type="object" class="oe_highlight" invisible="state != 'draft'"/>
-                    <button name="action_done" string="Hoàn thành trả phòng" type="object" class="oe_highlight" invisible="state != 'confirmed'"/>
-                    <button name="action_draft" string="Về nháp" type="object" invisible="state == 'draft'"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,done" options="{'clickable': '1'}"/>
+                    <button name="action_confirm" string="Check-in" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="action_done" string="Check-out &amp; Thanh toán" type="object" class="oe_highlight" invisible="state != 'confirmed'" confirm="Bạn có chắc chắn muốn trả phòng và thanh toán?"/>
+                    <button name="action_cancel" string="Hủy đơn" type="object" invisible="state not in ['draft', 'confirmed']"/>
+                    <button name="action_draft" string="Làm lại" type="object" invisible="state != 'cancel'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,done"/>
                 </header>
                 <sheet>
+                    <widget name="web_ribbon" title="Đã hủy" bg_color="bg-danger" invisible="state != 'cancel'"/>
+                    <widget name="web_ribbon" title="Hoàn thành" bg_color="bg-success" invisible="state != 'done'"/>
                     <div class="oe_title">
                         <label for="code" string="Mã Booking"/>
                         <h1>
@@ -37,12 +93,12 @@
                     </div>
                     <group>
                         <group name="general_info" string="Thông tin chung">
-                            <field name="customer_id" options="{'no_create': True, 'no_open': False}"/>
-                            <field name="room_id" options="{'no_create': True, 'no_open': False}"/>
+                            <field name="customer_id" options="{'no_create': True, 'no_open': False}" readonly="state != 'draft'"/>
+                            <field name="room_id" options="{'no_create': True, 'no_open': False}" readonly="state != 'draft'"/>
                         </group>
                         <group name="time_info" string="Thời gian lưu trú">
-                            <field name="check_in"/>
-                            <field name="check_out"/>
+                            <field name="check_in" readonly="state != 'draft'"/>
+                            <field name="check_out" readonly="state in ['done', 'cancel']"/>
                             <field name="duration" readonly="1"/>
                         </group>
                     </group>
@@ -57,7 +113,7 @@
                     </group>
                     <notebook>
                         <page string="Dịch vụ bổ sung" name="services">
-                            <field name="service_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create': True}"/>
+                            <field name="service_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create': True}" readonly="state in ['done', 'cancel']"/>
                             <p class="text-muted">
                                 * Tổng tiền bao gồm giá phòng lưu trú và giá các dịch vụ chọn thêm.
                             </p>
@@ -91,7 +147,7 @@
     <record id="action_hotel_booking" model="ir.actions.act_window">
         <field name="name">Phiếu đặt phòng</field>
         <field name="res_model">hotel.booking</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">kanban,tree,calendar,form</field>
         <field name="search_view_id" ref="view_hotel_booking_search"/>
         <field name="context">{'search_default_active_bookings': 1}</field>
     </record>
