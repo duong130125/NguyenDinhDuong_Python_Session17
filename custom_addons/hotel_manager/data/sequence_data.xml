@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+   
+        <record id="seq_hotel_booking" model="ir.sequence">
+            <field name="name">Hotel Booking</field>
+            <field name="code">hotel.booking</field>
+            <field name="prefix">BK</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        
+        <record id="seq_hotel_customer" model="ir.sequence">
+            <field name="name">Hotel Customer Code</field>
+            <field name="code">hotel.customer</field>
+            <field name="prefix">CUST/</field>
+            <field name="padding">6</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        
+        <record id="seq_hotel_room" model="ir.sequence">
+            <field name="name">Hotel Room Code</field>
+            <field name="code">hotel.room</field>
+            <field name="prefix">ROOM/</field>
+            <field name="padding">3</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        
+    </data>
+</odoo>

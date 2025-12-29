@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hotel_booking_tree" model="ir.ui.view">
+        <field name="name">hotel.booking.tree</field>
+        <field name="model">hotel.booking</field>
+        <field name="arch" type="xml">
+            <tree string="Danh sách Đặt phòng" decoration-info="state == 'draft'" decoration-success="state == 'confirmed'" decoration-muted="state == 'done'">
+                <field name="code"/>
+                <field name="customer_id" options="{'no_create': True, 'no_open': True}"/>
+                <field name="room_id" options="{'no_create': True, 'no_open': True}"/>
+                <field name="check_in"/>
+                <field name="check_out"/>
+                <field name="duration" string="Số đêm"/>
+                <field name="total_amount" sum="Tổng doanh thu" decoration-bf="1"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'confirmed'" decoration-muted="state == 'done'"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hotel_booking_form" model="ir.ui.view">
+        <field name="name">hotel.booking.form</field>
+        <field name="model">hotel.booking</field>
+        <field name="arch" type="xml">
+            <form string="Phiếu đặt phòng">
+                <header>
+                    <button name="action_confirm" string="Xác nhận nhận phòng" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="action_done" string="Hoàn thành trả phòng" type="object" class="oe_highlight" invisible="state != 'confirmed'"/>
+                    <button name="action_draft" string="Về nháp" type="object" invisible="state == 'draft'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,done" options="{'clickable': '1'}"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="code" string="Mã Booking"/>
+                        <h1>
+                            <field name="code" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group name="general_info" string="Thông tin chung">
+                            <field name="customer_id" options="{'no_create': True, 'no_open': False}"/>
+                            <field name="room_id" options="{'no_create': True, 'no_open': False}"/>
+                        </group>
+                        <group name="time_info" string="Thời gian lưu trú">
+                            <field name="check_in"/>
+                            <field name="check_out"/>
+                            <field name="duration" readonly="1"/>
+                        </group>
+                    </group>
+                    <group name="note_group" col="6" class="mt-2 mt-md-0">
+                        <group colspan="4">
+                        </group>
+                        <group class="oe_subtotal_footer oe_right" colspan="2" name="group_total">
+                            <field name="currency_id" invisible="1"/>
+                            <field name="total_amount" widget="monetary" options="{'currency_field': 'currency_id'}" decoration-bf="1" style="font-size: 1.5em;"/>
+                        </group>
+                        <div class="oe_clear"/>
+                    </group>
+                    <notebook>
+                        <page string="Dịch vụ bổ sung" name="services">
+                            <field name="service_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create': True}"/>
+                            <p class="text-muted">
+                                * Tổng tiền bao gồm giá phòng lưu trú và giá các dịch vụ chọn thêm.
+                            </p>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hotel_booking_search" model="ir.ui.view">
+        <field name="name">hotel.booking.search</field>
+        <field name="model">hotel.booking</field>
+        <field name="arch" type="xml">
+            <search string="Tìm kiếm Booking">
+                <field name="customer_id" string="Khách hàng"/>
+                <field name="room_id" string="Số phòng"/>
+                <field name="code" string="Mã Booking"/>
+                <separator/>
+                <filter string="Booking hôm nay" name="today_bookings" domain="[('check_in', '=', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter string="Chưa hoàn thành" name="active_bookings" domain="[('state', '!=', 'done')]"/>
+                <group expand="0" string="Gom nhóm theo">
+                    <filter string="Phòng" name="group_by_room" context="{'group_by': 'room_id'}"/>
+                    <filter string="Trạng thái" name="group_by_state" context="{'group_by': 'state'}"/>
+                    <filter string="Ngày nhận" name="group_by_checkin" context="{'group_by': 'check_in:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hotel_booking" model="ir.actions.act_window">
+        <field name="name">Phiếu đặt phòng</field>
+        <field name="res_model">hotel.booking</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_hotel_booking_search"/>
+        <field name="context">{'search_default_active_bookings': 1}</field>
+    </record>
+</odoo>

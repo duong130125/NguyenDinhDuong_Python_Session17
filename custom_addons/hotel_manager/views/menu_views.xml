@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Root Menu -->
+    <menuitem id="menu_hotel_root" name="Quản lý Khách sạn" sequence="10"/>
+
+    <!-- Menu 1: Lễ tân -->
+    <menuitem id="menu_hotel_reception" name="Lễ tân" parent="menu_hotel_root" sequence="10"/>
+    <menuitem id="menu_hotel_booking" name="Đặt phòng" parent="menu_hotel_reception" action="action_hotel_booking" sequence="10"/>
+    <menuitem id="menu_hotel_customer" name="Khách hàng" parent="menu_hotel_reception" action="action_hotel_customer" sequence="20"/>
+
+    <!-- Menu 2: Quản lý Phòng -->
+    <menuitem id="menu_hotel_room_mgmt" name="Quản lý Phòng" parent="menu_hotel_root" sequence="20"/>
+    <menuitem id="menu_hotel_room" name="Danh sách Phòng" parent="menu_hotel_room_mgmt" action="action_hotel_room" sequence="10"/>
+
+    <!-- Menu 3: Cấu hình -->
+    <menuitem id="menu_hotel_config" name="Cấu hình" parent="menu_hotel_root" sequence="30" groups="group_hotel_manager"/>
+    <menuitem id="menu_hotel_room_type" name="Loại phòng" parent="menu_hotel_config" action="action_hotel_room_type" sequence="10"/>
+    <menuitem id="menu_hotel_service" name="Dịch vụ" parent="menu_hotel_config" action="action_hotel_service" sequence="20"/>
+</odoo>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="rule_receptionist_booking" model="ir.rule">
+        <field name="name">Receptionist only see Draft/Confirmed Bookings</field>
+        <field name="model_id" ref="model_hotel_booking"/>
+        <field name="groups" eval="[(4, ref('group_hotel_receptionist'))]"/>
+        <field name="domain_force">[('state', 'in', ['draft', 'confirmed'])]</field>
+    </record>
+
+    <record id="rule_manager_all_booking" model="ir.rule">
+        <field name="name">Manager see all Bookings</field>
+        <field name="model_id" ref="model_hotel_booking"/>
+        <field name="groups" eval="[(4, ref('group_hotel_manager'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+</odoo>

@@ -93,6 +93,18 @@ class TrainingClass(models.Model):
             if len(record.name) < 8 or len(record.name) > 20:
                 raise ValidationError("Tên phải dài từ 8 ký tự đến 20 ký tự, không thì Dốt!!!")
 
+    def action_open_class(self):
+        for record in self:
+            record.state = 'open'
+
+    def action_close_class(self):
+        for record in self:
+            record.state = 'closed'
+
+    def action_set_draft(self):
+        for record in self:
+            record.state = 'draft'
+
 # 5. MODEL BUỔI HỌC (SESSION)
 class TrainingSession(models.Model):
     _name = 'training.session'
